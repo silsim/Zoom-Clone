@@ -20,10 +20,18 @@ const sockets = []
 
 wss.on("connection", (socket) => {
   sockets.push(socket)
+  socket["nickname"] = "Anon"
   console.log("Connected to Brower😀");
   socket.on("close", () => {console.log("Not Connected from Server 😈")})
-  socket.on("message", (message) => {
-    sockets.forEach( (aSokets) => aSokets.send(message.toString('utf-8')))
+
+  socket.on("message", (msg) => {
+    const parseMsg = JSON.parse(msg);
+    switch(parseMsg.type) {
+      case "new_message" :
+        sockets.forEach( (aSokets) => aSokets.send(`${socket.nickname}: ${parseMsg.payload}`));
+    case "nickname" :
+      socket["nickname"] = parseMsg.payload
+    }
   })
 })
 
